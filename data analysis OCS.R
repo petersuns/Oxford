@@ -3,15 +3,48 @@ library(stargazer)
 setwd("~/Google Drive (petersun)/Oxford 09:2018/data analysis")
 # read data file
 ocs<-read.csv("sheets/OCS.csv",stringsAsFactors = FALSE)
-
-
+ocs$Folder_Name[649]<-'P0565_2'
+ocs$Folder_Name[720]<-'P0626_2'
+ocs<-ocs[-710,]
+#ocs$Q9_A_Total
 # data cleaning 
 
 # get headers' name
-osc_clonames<-colnames(ocs) 
+ocs_clonames<-colnames(ocs) 
 #subset for machine read data only: row 1:794
+
+
+ocs$Q1_impairment[ocs$Q1_Total<3]<-1
+ocs$Q2_impairment[ocs$Q2_Total<3]<-1
+ocs$Q3_impairment[ocs$Q3_Total<4]<-1
+ocs$Q4_impairment[ocs$Q4_Total<4]<-1
+ocs$Q5_impairment[ocs$Q5_Total<14]<-1
+ocs$Q6_Calcs_impairment[ocs$Q6_Calcs_Total<3]<-1
+ocs$Q6_Number_Writing_impairment[ocs$Q6_Number_Writing_Total<3]<-1
+ocs$Q7_impairment[ocs$Q7_Total_Correct<42]<-1
+ocs$Q8_impairment[ocs$Q8_MGI_Total<8]<-1
+ocs$Q9_A_impairment[ocs$Q9_A_Total<3]<-1
+ocs$Q9_B_impairment[ocs$Q9_B_Total<3]<-1
+ocs$Q9_C_impairment[ocs$Q9_C_Total<3]<-1
+ocs$Q10_impairment[ocs$Q10_4_Executive_Score>4]<-1
+
+ocs$impairment_number<-rowSums(ocs[,c('Q1_impairment','Q2_impairment','Q3_impairment','Q4_impairment',
+                                      'Q5_impairment','Q6_Calcs_impairment','Q6_Number_Writing_impairment',
+                                      'Q7_impairment','Q8_impairment','Q9_A_impairment','Q9_B_impairment',
+                                      'Q9_C_impairment','Q10_impairment')],na.rm=T)
+
+a<-data.frame(c(1,2,3,NA))
+b<-data.frame(c(3,NA,3,4))
+c<-cbind(a,b)
+rowSums(c[,c('c.1..2..3..NA.','c.3..NA..3..4.')],na.rm=T)
+a+b
+
+
+ocs<-ocs[1:800,c('Trial_Entry_No','Date','impairment_number','Folder_Name','Document_Name')]
 ocs<-ocs[1:800,c('Trial_Entry_No','Date','Q1_Total','Q2_Total','Q3_Total','Q4_Total','Q5_Total','Q6_Calcs_Total',
-                 'Q7_Total_Correct','Q8_MGI_Total','Q10_4_Executive_Score')]
+                 'Q6_Number_Writing_Total',
+                 'Q7_Total_Correct','Q8_MGI_Total','Q9_A_Total','Q9_B_Total','Q9_C_Total',
+                 'Q10_4_Executive_Score','Folder_Name','Document_Name')]
 ocs$Date <- as.Date(as.character(ocs$Date),"%d/%m/%Y")
 
 #ocs<-ocs[1:794,]
@@ -54,9 +87,15 @@ which(ocs$Trial_Entry_No=="P0335")
 #ocs<-ocs[-381,]
 
 # delete error value 999
-ocs<-ocs[!ocs$Q2_Total==999,]
+#ocs<-ocs[!ocs$Q2_Total==999,]
 
 #no duplicated row now 
+table(grepl("_3", ocs$Folder_Name))
+ocs$Folder_Name[grepl("_3", ocs$Folder_Name)]
+ocs_FP<-ocs[grepl("_3", ocs$Folder_Name),]
+ocs_First<-ocs[!grepl("_3", ocs$Folder_Name),]
+sort(table(ocs_First$Trial_Entry_No,exclude = NULL))
+sort(table(ocs_FP$Trial_Entry_No,exclude = NULL))
 
 
 
